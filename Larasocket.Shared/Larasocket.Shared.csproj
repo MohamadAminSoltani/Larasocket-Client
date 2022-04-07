@@ -1,0 +1,37 @@
+<Project Sdk="Microsoft.NET.Sdk">
+
+	<PropertyGroup>
+		<TargetFramework>netstandard2.0</TargetFramework>
+
+		<GeneratePackageOnBuild>true</GeneratePackageOnBuild>
+		<PackageId>Larasocket-Client</PackageId>
+		<PackageVersion>1.0.0.0</PackageVersion>
+		<Title>Larasocket .NET Client SDK</Title>
+		<Authors>Mohamad Amin Soltani</Authors>
+		<PackageLicenseExpression>
+			MS-PL
+		</PackageLicenseExpression>
+		<PackageProjectUrl>
+			https://github.com/markjprice/cs10dotnet6
+		</PackageProjectUrl>
+		<PackageIcon>packt-csdotnet-sharedlibrary.png</PackageIcon>
+		<PackageRequireLicenseAcceptance>true</PackageRequireLicenseAcceptance>
+		<PackageReleaseNotes>
+			Example shared library packaged for NuGet.
+		</PackageReleaseNotes>
+		<Description>
+			Three extension methods to validate a string value.
+		</Description>
+		<Copyright>
+			Copyright © 2016-2021 Packt Publishing Limited
+		</Copyright>
+		<PackageTags>string extensions packt csharp dotnet</PackageTags>
+
+	</PropertyGroup>
+
+	<ItemGroup>
+		<PackageReference Include="Newtonsoft.Json" Version="13.0.1" />
+		<PackageReference Include="System.Reactive" Version="5.0.0" />
+	</ItemGroup>
+
+</Project>
