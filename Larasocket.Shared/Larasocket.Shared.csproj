@@ -5,7 +5,7 @@
 
 		<GeneratePackageOnBuild>true</GeneratePackageOnBuild>
 		<PackageId>Larasocket-Client</PackageId>
-		<PackageVersion>1.0.0.0</PackageVersion>
+		<PackageVersion>1.0.0.2</PackageVersion>
 		<Title>Larasocket .NET Client SDK</Title>
 		<Authors>Mohamad Amin Soltani</Authors>
 		<PackageLicenseExpression>

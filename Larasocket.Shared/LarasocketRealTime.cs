@@ -1,4 +1,5 @@
-﻿using Newtonsoft.Json;
+﻿using Larasocket.Shared.Models;
+using Newtonsoft.Json;
 using System;
 using System.Linq;
 using System.Net.WebSockets;
@@ -16,21 +17,17 @@ namespace Larasocket.Shared
     /// </summary>
     public class LarasocketClient
     {
-        //private SynchronizationContext _synchronizationContext;
-        //internal ILogger Logger { get; private set; }
-        //internal volatile bool Disposed;
-        //private bool _disposing;
         public string ConnectionId { get; private set; }
         private ClientWebSocket client;
         private CancellationTokenSource cts;
         private readonly string _token;
-        private readonly string _userUuid;
+        private readonly string _userUuid = Guid.NewGuid().ToString();
         private readonly Subject<ResponseMessage> _messageReceivedSubject = new Subject<ResponseMessage>();
         public IObservable<ResponseMessage> MessageReceived => _messageReceivedSubject.AsObservable();
-        public LarasocketClient(string token,string userUuid)
+        public LarasocketClient(string token)
         {
             _token = token;
-            _userUuid = userUuid;
+
             Connect();
         }
 
@@ -38,7 +35,6 @@ namespace Larasocket.Shared
         {
             client = new ClientWebSocket();
             cts = new CancellationTokenSource();
-            //string guid = Guid.NewGuid().ToString();
             var url = $"wss://ws.larasocket.com?token={_token}&uuid={_userUuid}";
 
             await client.ConnectAsync(new Uri(url), cts.Token);
@@ -55,7 +51,7 @@ namespace Larasocket.Shared
         }
         
 
-        public void SubscribeToPublicChannel(string channelName)
+        public async Task SubscribeToPublicChannel(string channelName)
         {
             var messages = new SubscribeMessage
             {
@@ -65,7 +61,7 @@ namespace Larasocket.Shared
                 token = _token
             };
 
-            SendMessageAsync(messages);
+            await SendMessageAsync(messages);
         }
         
         public async Task SendMessageAsync<T>(T message)
@@ -95,6 +91,11 @@ namespace Larasocket.Shared
                         try
                         {
                             rmessage = ResponseMessage.TextMessage(serialisedMessae);
+                            if (rmessage.Text.StartsWith("{\n \"connection_id\":"))
+                            {
+                                ConnectionId = JsonConvert.DeserializeObject<HandshakeResponseMessage>(rmessage.Text).connection_id;
+                            }
+
                             _messageReceivedSubject.OnNext(rmessage);
 
                         }
