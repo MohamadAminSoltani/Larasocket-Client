@@ -9,6 +9,7 @@ using System.Diagnostics;
 using System.IO;
 using System.Linq;
 using System.Net.Http;
+using System.Net.Http.Headers;
 using System.Net.WebSockets;
 using System.Reactive.Linq;
 using System.Reactive.Subjects;
@@ -726,6 +727,7 @@ namespace Larasocket.Shared
                         { "payload",model.payload},
                         { "connection_id",model.connection_id}
                     });
+                req.Headers.Authorization = new AuthenticationHeaderValue("Bearer", _token);
 
                 var response = await httpClient.SendAsync(req);
                 if (response.StatusCode == System.Net.HttpStatusCode.OK)
