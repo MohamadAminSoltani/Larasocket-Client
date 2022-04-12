@@ -4,9 +4,11 @@ using Larasocket.Shared.Models;
 using Larasocket.Shared.Threading;
 using Newtonsoft.Json;
 using System;
+using System.Collections.Generic;
 using System.Diagnostics;
 using System.IO;
 using System.Linq;
+using System.Net.Http;
 using System.Net.WebSockets;
 using System.Reactive.Linq;
 using System.Reactive.Subjects;
@@ -703,6 +705,100 @@ namespace Larasocket.Shared
 
             await Task.Run(() => Send(msg));
         }
+
+        public async Task<BroadcastMessageResponseModel> BroadcastMessage(BroadcastMessageModel model)
+        {
+            try
+            {
+                var httpClient = new HttpClient();
+
+                string query = $"https://larasocket.com/api/broadcast";
+
+                var req = new HttpRequestMessage(HttpMethod.Post, query);
+                req.Headers.Add("Connection", "keep-alive");
+                req.Headers.Add("Accept-Encoding", "gzip, deflate");
+                req.Headers.Add("accept", "application/json");
+
+                req.Content = new FormUrlEncodedContent(new Dictionary<string, string>
+                    {
+                        { "event", model.@event },
+                        { "channels",model.channels},
+                        { "payload",model.payload},
+                        { "connection_id",model.connection_id}
+                    });
+
+                var response = await httpClient.SendAsync(req);
+                if (response.StatusCode == System.Net.HttpStatusCode.OK)
+                {
+                    var serializedResponse = JsonConvert.DeserializeObject<BroadcastMessageResponseModel200>(await response.Content.ReadAsStringAsync());
+
+                    var result = new BroadcastMessageResponseModel
+                    {
+                        IsSuccessfull = true,
+                        Errors = null,
+                        Message = serializedResponse.status
+                    };
+                    return result;
+                }
+                else if(response.StatusCode == System.Net.HttpStatusCode.InternalServerError)
+                {
+                    var serializedResponse = JsonConvert.DeserializeObject<BroadcastMessageResponseModel500_401>(await response.Content.ReadAsStringAsync());
+
+                    var result = new BroadcastMessageResponseModel
+                    {
+                        IsSuccessfull = false,
+                        Errors = null,
+                        Message = serializedResponse.message
+                    };
+                    return result;
+                }
+                else if (response.StatusCode == System.Net.HttpStatusCode.Unauthorized)
+                {
+                    var serializedResponse = JsonConvert.DeserializeObject<BroadcastMessageResponseModel500_401>(await response.Content.ReadAsStringAsync());
+
+                    var result = new BroadcastMessageResponseModel
+                    {
+                        IsSuccessfull = false,
+                        Errors = null,
+                        Message = serializedResponse.message
+                    };
+                    return result;
+                }
+                else if (response.StatusCode == (System.Net.HttpStatusCode)422)
+                {
+                    var serializedResponse = JsonConvert.DeserializeObject<BroadcastMessageResponseModel422>(await response.Content.ReadAsStringAsync());
+
+                    var result = new BroadcastMessageResponseModel
+                    {
+                        IsSuccessfull = false,
+                        Errors = serializedResponse.errors,
+                        Message = serializedResponse.message
+                    };
+                    return result;
+                }
+                else //If Requess Was not Successful
+                {
+                    var result = new BroadcastMessageResponseModel
+                    {
+                        IsSuccessfull = false,
+                        Errors = null,
+                        Message = "Unknown"
+                    };
+                    return result;
+                }
+            }
+            catch (Exception ex)
+            {
+                var result = new BroadcastMessageResponseModel
+                {
+                    IsSuccessfull = false,
+                    Errors = null,
+                    Message = ex.Message
+                };
+                return result;
+            }
+        }  
+
 
         //public async Task SendMessageAsync<T>(T message)
         //{

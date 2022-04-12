@@ -166,5 +166,11 @@ namespace Larasocket.Shared
         /// </summary>
         /// <param name="message">Message to be stream</param>
         void StreamFakeMessage(ResponseMessage message);
+
+        /// <summary>
+        /// Broadcast Message to a Public Channel
+        /// </summary>
+        /// <param name="model">Message to be stream</param>
+        Task<BroadcastMessageResponseModel> BroadcastMessage(BroadcastMessageModel model);
     }
 }
